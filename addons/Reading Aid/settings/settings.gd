@@ -23,6 +23,7 @@ static var _singleton:Settings:
 	set(v): _singleton = v
 
 
+
 static var MAX_COMMENT_BG_COLOR_LINE_COUNT:int:
 	get: return _singleton.max_comment_line_in_color
 

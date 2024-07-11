@@ -19,13 +19,13 @@ var _now:float:
 	set(v): pass
 
 
-## get current editor's theme's bg color
+## retrieve current editor's theme's bg color
 var _default_editor_bg_color:Color:
-	get:
+	get: # readonly
 		assert(face_editor!=null, "var _default_editor_bg_color: face_editor == null")
 		return face_editor.get_theme_color("background_color")
-	set(v): pass
-	
+
+
 
 var CommentButtonScene = preload("res://addons/Reading Aid/scenes/CommentButton.tscn")
 
@@ -170,6 +170,7 @@ func _on_changing_active_script(_script:Script):
 	# they will call script_editor.get_current_editor().get_base_editor() in this func
 	# when it's still null. Use _init_completed to block the proceeding
 	if !_init_completed: return
+	
 	face_editor = script_editor.get_current_editor().get_base_editor()
 	_editor_signal_initial_setup()
 	
@@ -179,13 +180,12 @@ func _on_changing_active_script(_script:Script):
 		if b.get_parent() != null: b.get_parent().remove_child(b)
 		# set up new parent
 		face_editor.add_child(b)
+
 	if editor_button_array.get_parent() != null:
 		editor_button_array.get_parent().remove_child(editor_button_array)
-	face_editor.add_child(editor_button_array)
-	
-	_hide_bottom_button_array()
-	_hide_comment_buttons()
 
+	_hide_comment_buttons()
+	_should_display_comment_buttons = false
 
 
 ##1 signal bridge to pause _process(), _input() and _on_change_script()
@@ -343,7 +343,11 @@ func go_to_line(num:int):
 
 func _hide_bottom_button_array():
 	editor_button_array.visible = false
+
+
 func _display_and_update_editor_button_array():
+	if !face_editor.get_children().has(editor_button_array):
+		face_editor.add_child(editor_button_array)
 	# siz & pos
 	editor_button_array.configure_button_theme()
 	editor_button_array.configure_button_state()
@@ -404,6 +408,8 @@ var _latest_updated_screen_range:Array[int] = [0,0]
 
 #TODO did enum_view's popup's line track stop working?
 
+##
+## called when
 func update_comment_bg_onscreen():
 	#3m# get screen range
 	var minmax = _get_onscreen_line_index_range_and_stretch()
@@ -493,7 +499,7 @@ func _get_onscreen_line_index_range_and_stretch() -> Array[int]:
 	# stretch the range to draw bg color whose parent comment is out of sight, and inactive otherwise
 	var stretch:int = Settings.MAX_COMMENT_BG_COLOR_LINE_COUNT
 	min_line_index = max(0, min_line_index - stretch)
-	max_line_index = min(face_editor.get_line_count()-1, max_line_index + stretch / 2)
+	max_line_index = min(face_editor.get_line_count()-1, max_line_index + stretch)
 	return [min_line_index, max_line_index]
 
 
