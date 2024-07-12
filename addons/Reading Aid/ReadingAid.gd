@@ -170,7 +170,7 @@ func _on_changing_active_script(_script:Script):
 	# they will call script_editor.get_current_editor().get_base_editor() in this func
 	# when it's still null. Use _init_completed to block the proceeding
 	if !_init_completed: return
-	
+
 	face_editor = script_editor.get_current_editor().get_base_editor()
 	_editor_signal_initial_setup()
 	
@@ -181,10 +181,10 @@ func _on_changing_active_script(_script:Script):
 		# set up new parent
 		face_editor.add_child(b)
 
-	if editor_button_array.get_parent() != null:
+	if editor_button_array != null and editor_button_array.get_parent() != null:
 		editor_button_array.get_parent().remove_child(editor_button_array)
+		editor_button_array.queue_free()
 
-	_hide_comment_buttons()
 	_should_display_comment_buttons = false
 
 
@@ -249,11 +249,14 @@ func _setup_hotkey(): # NOTE hot keys are available for other classes too.
 
 ##1
 func _init_setup_top_menu_button_array():
+	var start = Time.get_unix_time_from_system()
 	top_menu_button_array = preload("res://addons/Reading Aid/scenes/TopMenuButtonArray.tscn")\
 		.instantiate()
 	# make sure button enters tree before connecting signals
 	script_editor.get_child(0).get_child(0).add_child(top_menu_button_array)
 	top_menu_button_array.move_to_front()
+	var end = Time.get_unix_time_from_system()
+	printt(start, "->", end, ", duration", end-start)
 
 ##1
 func _init_setup_bottom_button_array_after_face_editor():
@@ -263,6 +266,9 @@ func _init_setup_bottom_button_array_after_face_editor():
 	editor_button_array.configure_button_theme()
 	_hide_bottom_button_array()
 
+
+func _buttom_button_array_new_init_and_add_to_face_editor():
+	_init_setup_bottom_button_array_after_face_editor()
 
 
 
@@ -306,6 +312,7 @@ func _get_editor_settings():
 	EDITOR_LINE_SPACING = EditorInterface.get_editor_settings().get_setting \
 		("text_editor/appearance/whitespace/line_spacing")
 	
+	# side effect, change editor array's appearance (could use a signal instead)
 	if editor_button_array != null:
 		editor_button_array.configure_button_theme()
 
@@ -346,8 +353,8 @@ func _hide_bottom_button_array():
 
 
 func _display_and_update_editor_button_array():
-	if !face_editor.get_children().has(editor_button_array):
-		face_editor.add_child(editor_button_array)
+	if editor_button_array == null:
+		_buttom_button_array_new_init_and_add_to_face_editor()
 	# siz & pos
 	editor_button_array.configure_button_theme()
 	editor_button_array.configure_button_state()
