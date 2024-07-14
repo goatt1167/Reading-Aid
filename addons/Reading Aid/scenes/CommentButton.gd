@@ -43,7 +43,7 @@ func _on_plus_button_down():
 	# grow
 	encode = encode.to_int() + 1;
 	encode = min(encode, Settings.MAX_COMMENT_BG_COLOR_LINE_COUNT)
-	encode = prefix + str(encode) + color_char + "#"
+	encode = prefix + str(encode) + color_char
 	#replace
 	string = string.erase(minmax[0], minmax[1]-minmax[0]+1)
 	string = string.insert(minmax[0], encode)
@@ -62,7 +62,7 @@ func _on_minus_button_down():
 	var prefix = "#" if encode[1] != "#" else "##"
 	# shrink
 	var height:int = encode.to_int() - 1; if height < 1: height = 1
-	encode = prefix + str(height) + color_char + "#"
+	encode = prefix + str(height) + color_char
 	#replace
 	string = string.erase(minmax[0], minmax[1]-minmax[0]+1)
 	string = string.insert(minmax[0], encode)

@@ -9,6 +9,11 @@ Button scripts are to manipulate those states.
 
 """
 
+# BUG button array stain problem in _on_changing_active_script has been solved. But the same problem in opening new script hasn't.
+# BUG changing comment line size will add additional buggy text.
+# BUG changing resizing editor will make button array appear
+# TODO why comment buttons are fine, but button array are not? They should be the same
+
 @tool
 extends EditorPlugin
 class_name ReadingAid
