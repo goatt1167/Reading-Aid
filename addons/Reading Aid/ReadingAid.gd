@@ -183,9 +183,10 @@ func _on_changing_active_script(_script:Script):
 
 	if editor_button_array != null and editor_button_array.get_parent() != null:
 		editor_button_array.get_parent().remove_child(editor_button_array)
-		editor_button_array.queue_free()
+		face_editor.add_child(editor_button_array)
 
-	_should_display_comment_buttons = false
+	_should_display_ineditor_buttons = false
+	_is_displaying_ineditor_buttons = true
 
 
 ##1 signal bridge to pause _process(), _input() and _on_change_script()
@@ -324,15 +325,9 @@ func _input(event:InputEvent):
 	if Input.is_action_pressed(META_CTRL):
 		if Input.is_action_pressed(E):
 			go_back()
-			pass
-			#print(old_symbol)
-			#EditorInterface.edit_script(old_symbol[0], old_symbol[1], old_symbol[2])
-			#old_symbol = []
-
-			#if popup_window.is_closed:
-				#popup_window.popup_and_display_face_editor(EditorWindow.Tab.TODO)
-				
-		_should_display_comment_buttons = true
+		_should_display_ineditor_buttons = true
+	if Input.is_action_just_released(META_CTRL):
+		_should_display_ineditor_buttons = false
 
 
 
@@ -353,8 +348,6 @@ func _hide_bottom_button_array():
 
 
 func _display_and_update_editor_button_array():
-	if editor_button_array == null:
-		_buttom_button_array_new_init_and_add_to_face_editor()
 	# siz & pos
 	editor_button_array.configure_button_theme()
 	editor_button_array.configure_button_state()
@@ -395,18 +388,19 @@ func _process(delta):
 			_cooldown = 0
 		
 		#10i receive signal and display comment buttons
-		if _should_display_comment_buttons:
-			if !_is_displaying_comment_buttons:
+		if _should_display_ineditor_buttons:
+			if !_is_displaying_ineditor_buttons:
 				display_comment_buttons()
 				_display_and_update_editor_button_array()
-			_is_displaying_comment_buttons = true
-			if Input.is_action_just_released(META_CTRL):
-				_should_display_comment_buttons = false
+			_is_displaying_ineditor_buttons = true
 		else:
-			if _is_displaying_comment_buttons:
+			if _is_displaying_ineditor_buttons:
 				_hide_comment_buttons()
+				print("hiding button array")
 				_hide_bottom_button_array()
-				_is_displaying_comment_buttons = false
+				print("button array visible? ", editor_button_array.visible)
+				_is_displaying_ineditor_buttons = false
+
 
 
 ## remember latest screen range being updated
@@ -426,8 +420,8 @@ func update_comment_bg_onscreen():
 
 
 ## bridge signal for when CTRL-META is held down
-var _should_display_comment_buttons = false
-var _is_displaying_comment_buttons = false
+var _should_display_ineditor_buttons = false
+var _is_displaying_ineditor_buttons = false
 static var color_comment_line_numbers:Array[int] = []
 ## tell _process() to update bg color immdediately
 func _should_update_comment_bg_color_immediately():
